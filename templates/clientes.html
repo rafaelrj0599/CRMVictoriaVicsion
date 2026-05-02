@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Clientes</li>{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Clientes</h4>
+    <p class="text-muted small mb-0">{{ clients|length }} resultado(s)</p>
+  </div>
+  <a href="/clientes/nuevo" class="btn btn-primary" style="background:#7c3aed; border-color:#7c3aed;">
+    <i class="bi bi-person-plus me-2"></i>Nuevo Cliente
+  </a>
+</div>
+
+<!-- FILTROS -->
+<div class="card stat-card mb-4">
+  <div class="card-body py-3">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold mb-1">Buscar</label>
+        <input class="form-control form-control-sm" name="search" value="{{ search }}" placeholder="Nombre, apellido, teléfono...">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold mb-1">Estatus</label>
+        <select class="form-select form-select-sm" name="estatus">
+          <option value="">Todos</option>
+          {% for s in ['Nuevo','En seguimiento','Cerrado','Interesado','No interesado'] %}
+          <option {% if estatus_filter == s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if role == 'admin' %}
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold mb-1">Asesor</label>
+        <select class="form-select form-select-sm" name="asesor">
+          <option value="">Todos</option>
+          {% for a in asesores %}
+          <option value="{{ a['username'] }}" {% if asesor_filter == a['username'] %}selected{% endif %}>{{ a['nombre'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      <div class="col-md-2 d-flex gap-2">
+        <button class="btn btn-sm btn-primary w-100" style="background:#7c3aed; border-color:#7c3aed;">
+          <i class="bi bi-search me-1"></i>Filtrar
+        </button>
+        <a href="/clientes" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x"></i></a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TABLA -->
+<div class="card stat-card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Tipo</th>
+            <th>Estatus</th>
+            <th>Registrado por</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clients %}
+          <tr>
+            <td class="text-muted">{{ c['id'] }}</td>
+            <td class="fw-semibold">{{ c['nombre'] }} {{ c['apellido'] }}</td>
+            <td>{{ c['telefono'] }}</td>
+            <td class="text-muted small">{{ c['email'] or '—' }}</td>
+            <td><span class="text-muted small">{{ c['tipo'] }}</span></td>
+            <td>
+              {% set est = c['estatus'] %}
+              {% if est == 'Nuevo' %}
+                <span class="badge badge-nuevo">{{ est }}</span>
+              {% elif est == 'En seguimiento' %}
+                <span class="badge badge-seguimiento">{{ est }}</span>
+              {% elif est == 'Cerrado' %}
+                <span class="badge badge-cerrado">{{ est }}</span>
+              {% elif est == 'Interesado' %}
+                <span class="badge badge-interesado">{{ est }}</span>
+              {% else %}
+                <span class="badge badge-no-interesado">{{ est }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="small">{{ c['asesor_nombre'] or c['asesor'] }}</span>
+            </td>
+            <td class="text-muted small">{{ c['created_at'][:10] if c['created_at'] else '—' }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="/clientes/editar/{{ c['id'] }}" class="btn btn-sm btn-outline-secondary" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% if role == 'admin' %}
+                <form method="post" action="/clientes/eliminar/{{ c['id'] }}" onsubmit="return confirm('¿Eliminar este cliente?')">
+                  <button class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" class="text-center text-muted py-4">No se encontraron clientes.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

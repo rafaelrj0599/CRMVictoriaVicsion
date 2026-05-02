@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Mi Perfil</li>{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <div>
+        <h4 class="fw-bold mb-0">Mi Perfil</h4>
+        <p class="text-muted small mb-0">Actualiza tu información personal</p>
+      </div>
+    </div>
+
+    <div class="card stat-card mb-3">
+      <div class="card-body d-flex align-items-center gap-3 p-4">
+        <div class="stat-icon" style="background:#ede9fe; width:64px; height:64px; font-size:1.8rem;">
+          <i class="bi bi-person-circle" style="color:#7c3aed;"></i>
+        </div>
+        <div>
+          <div class="fw-bold fs-5">{{ user['nombre'] }}</div>
+          <div class="text-muted small">@{{ user['username'] }}</div>
+          <span class="badge mt-1" style="background:#7c3aed; font-size:.72rem;">
+            {% if user['role'] == 'admin' %}Administrador{% else %}Asesor{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="card-body p-4">
+        <form method="post">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Nombre completo *</label>
+              <input class="form-control" name="nombre" value="{{ user['nombre'] }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email</label>
+              <input class="form-control" type="email" name="email" value="{{ user['email'] or '' }}" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Teléfono</label>
+              <input class="form-control" name="telefono" value="{{ user['telefono'] or '' }}" placeholder="0414-0000000">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Nueva contraseña <span class="text-muted">(dejar vacío para no cambiar)</span></label>
+              <input class="form-control" type="password" name="password" placeholder="••••••">
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" style="background:#7c3aed; border-color:#7c3aed;">
+              <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+            </button>
+            <a href="/dashboard" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

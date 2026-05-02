@@ -7,7 +7,7 @@ import psycopg2
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'victoria_vicsion_secret_v3')
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('postgresql://crmvictoria_user:Cy2ymtUsWHDgQ0ER2ojSMLO0wjSnuigY@dpg-d7qoatfavr4c73f2hcqg-a.oregon-postgres.render.com/crmvictoria')
 
 # ================= DB =================
 

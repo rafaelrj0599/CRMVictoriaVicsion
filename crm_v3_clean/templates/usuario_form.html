@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="/usuarios">Usuarios</a></li>
+  <li class="breadcrumb-item active">{% if user %}Editar{% else %}Nuevo{% endif %} Usuario</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <a href="/usuarios" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+      <div>
+        <h4 class="fw-bold mb-0">{% if user %}Editar Usuario{% else %}Nuevo Usuario{% endif %}</h4>
+        <p class="text-muted small mb-0">{% if user %}Modifica los datos del usuario{% else %}Ingresa un nuevo usuario al sistema{% endif %}</p>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card stat-card">
+      <div class="card-body p-4">
+        <form method="post">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Nombre completo *</label>
+              <input class="form-control" name="nombre" value="{{ user['nombre'] if user else '' }}" placeholder="Nombre Apellido" required>
+            </div>
+            {% if not user %}
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Nombre de usuario *</label>
+              <input class="form-control" name="username" placeholder="usuario123" required>
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Contraseña {% if user %}(dejar vacío para no cambiar){% else %}*{% endif %}</label>
+              <input class="form-control" type="password" name="password" placeholder="••••••" {% if not user %}required{% endif %}>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Rol *</label>
+              <select class="form-select" name="role">
+                <option value="asesor" {% if user and user['role'] == 'asesor' %}selected{% endif %}>Asesor</option>
+                <option value="admin" {% if user and user['role'] == 'admin' %}selected{% endif %}>Administrador</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Email</label>
+              <input class="form-control" type="email" name="email" value="{{ user['email'] if user else '' }}" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold">Teléfono</label>
+              <input class="form-control" name="telefono" value="{{ user['telefono'] if user else '' }}" placeholder="0414-0000000">
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" style="background:#7c3aed; border-color:#7c3aed;">
+              <i class="bi bi-check-lg me-2"></i>{% if user %}Guardar Cambios{% else %}Crear Usuario{% endif %}
+            </button>
+            <a href="/usuarios" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

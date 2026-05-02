@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Mi Panel</li>{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Bienvenido, {{ nombre }}</h4>
+    <p class="text-muted small mb-0">Tu resumen de hoy</p>
+  </div>
+  <span class="badge rounded-pill" style="background:#7c3aed; font-size:.8rem; padding:.5rem 1rem;">
+    <i class="bi bi-person-badge me-1"></i>Asesor
+  </span>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#ede9fe;"><i class="bi bi-people" style="color:#7c3aed;"></i></div>
+        <div>
+          <div class="fw-bold fs-3">{{ total }}</div>
+          <div class="text-muted small">Total clientes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#dcfce7;"><i class="bi bi-person-plus" style="color:#166534;"></i></div>
+        <div>
+          <div class="fw-bold fs-3">{{ hoy }}</div>
+          <div class="text-muted small">Registrados hoy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <a href="/clientes/nuevo" class="card stat-card text-decoration-none">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#dbeafe;"><i class="bi bi-plus-circle" style="color:#1d4ed8;"></i></div>
+        <div>
+          <div class="fw-semibold text-dark">Registrar Cliente</div>
+          <div class="text-muted small">Nuevo ingreso</div>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="card stat-card">
+  <div class="card-header bg-white d-flex align-items-center justify-content-between py-3">
+    <span class="fw-semibold">Mis Clientes</span>
+    <a href="/clientes" class="btn btn-sm btn-outline-primary">Ver todos</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Tipo</th>
+            <th>Estatus</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clients[:10] %}
+          <tr>
+            <td class="fw-semibold">{{ c['nombre'] }} {{ c['apellido'] }}</td>
+            <td>{{ c['telefono'] }}</td>
+            <td><span class="text-muted small">{{ c['tipo'] }}</span></td>
+            <td>
+              {% set est = c['estatus'] %}
+              {% if est == 'Nuevo' %}
+                <span class="badge badge-nuevo">{{ est }}</span>
+              {% elif est == 'En seguimiento' %}
+                <span class="badge badge-seguimiento">{{ est }}</span>
+              {% elif est == 'Cerrado' %}
+                <span class="badge badge-cerrado">{{ est }}</span>
+              {% elif est == 'Interesado' %}
+                <span class="badge badge-interesado">{{ est }}</span>
+              {% else %}
+                <span class="badge badge-no-interesado">{{ est }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/clientes/editar/{{ c['id'] }}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">Sin clientes registrados aún.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

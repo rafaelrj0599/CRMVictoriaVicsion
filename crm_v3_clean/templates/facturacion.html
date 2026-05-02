@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block breadcrumb %}<li class="breadcrumb-item active">Facturación</li>{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">Facturación</h4>
+    <p class="text-muted small mb-0">{{ facturas|length }} factura(s) registradas</p>
+  </div>
+  <button class="btn btn-primary" style="background:#7c3aed; border-color:#7c3aed;" data-bs-toggle="modal" data-bs-target="#nuevaFacturaModal">
+    <i class="bi bi-receipt me-2"></i>Nueva Factura
+  </button>
+</div>
+
+<!-- STATS -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#dcfce7;"><i class="bi bi-cash-stack" style="color:#166534;"></i></div>
+        <div>
+          <div class="fw-bold fs-4">${{ "%.2f"|format(total_pagado) }}</div>
+          <div class="text-muted small">Total cobrado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#fef3c7;"><i class="bi bi-hourglass-split" style="color:#92400e;"></i></div>
+        <div>
+          <div class="fw-bold fs-4">{{ facturas|selectattr('estatus','equalto','Pendiente')|list|length }}</div>
+          <div class="text-muted small">Pendientes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card stat-card">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="stat-icon" style="background:#ede9fe;"><i class="bi bi-file-earmark-text" style="color:#7c3aed;"></i></div>
+        <div>
+          <div class="fw-bold fs-4">{{ facturas|length }}</div>
+          <div class="text-muted small">Total facturas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLA FACTURAS -->
+<div class="card stat-card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Descripción</th>
+            <th>Monto</th>
+            <th>Estatus</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in facturas %}
+          <tr>
+            <td class="text-muted">{{ f['id'] }}</td>
+            <td class="fw-semibold">{{ f['cliente_nombre'] }}</td>
+            <td class="text-muted small">{{ f['descripcion'] }}</td>
+            <td class="fw-semibold">${{ "%.2f"|format(f['monto']) }}</td>
+            <td>
+              {% if f['estatus'] == 'Pagado' %}
+                <span class="badge badge-cerrado">Pagado</span>
+              {% elif f['estatus'] == 'Pendiente' %}
+                <span class="badge badge-seguimiento">Pendiente</span>
+              {% else %}
+                <span class="badge badge-no-interesado">Anulado</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ f['created_at'][:10] if f['created_at'] else '—' }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <form method="post" action="/facturacion/estatus/{{ f['id'] }}" class="d-inline">
+                  <select name="estatus" class="form-select form-select-sm" style="width:auto;" onchange="this.form.submit()">
+                    {% for s in ['Pendiente','Pagado','Anulado'] %}
+                    <option {% if f['estatus'] == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </form>
+                <form method="post" action="/facturacion/eliminar/{{ f['id'] }}" onsubmit="return confirm('¿Eliminar factura?')">
+                  <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No hay facturas registradas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA FACTURA -->
+<div class="modal fade" id="nuevaFacturaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Nueva Factura</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/facturacion/nueva">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Cliente *</label>
+            <select class="form-select" name="cliente_id" required>
+              <option value="">Seleccionar cliente...</option>
+              {% for c in clients %}
+              <option value="{{ c['id'] }}">{{ c['nombre'] }} {{ c['apellido'] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Descripción *</label>
+            <input class="form-control" name="descripcion" placeholder="Descripción del servicio" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Monto *</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input class="form-control" type="number" name="monto" step="0.01" min="0" placeholder="0.00" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Estatus</label>
+            <select class="form-select" name="estatus">
+              <option>Pendiente</option>
+              <option>Pagado</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background:#7c3aed; border-color:#7c3aed;">
+            <i class="bi bi-receipt me-2"></i>Registrar Factura
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
